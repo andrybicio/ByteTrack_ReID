@@ -7,8 +7,11 @@ import torch
 import torch.nn.functional as F
 
 from .kalman_filter import KalmanFilter
+from .extendedkalman_filter import ExtendedKalmanFilter
 from yolox.tracker import matching
 from .basetrack import BaseTrack, TrackState
+
+extendedFilter = True
 
 class STrack(BaseTrack):
     shared_kalman = KalmanFilter()
@@ -61,7 +64,10 @@ class STrack(BaseTrack):
 
     def activate(self, kalman_filter, frame_id):
         """Start a new tracklet"""
-        self.kalman_filter = kalman_filter
+        if extendedFilter:
+            self.kalman_filter = ExtendedKalmanFilter
+        else:
+            self.kalman_filter = kalman_filter
         self.track_id = self.next_id()
         self.mean, self.covariance = self.kalman_filter.initiate(self.tlwh_to_xyah(self._tlwh))
 
