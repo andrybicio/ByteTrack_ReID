@@ -188,10 +188,11 @@ def image_demo(predictor, vis_folder, current_time, args):
 
     for frame_id, img_path in enumerate(files, 1):
         outputs, img_info = predictor.inference(img_path, timer)
-        id_feature = outputs[0][:, 7:]  # [detect_num, 128]
-        id_feature = F.normalize(id_feature, dim=1)  # normalization of id embeddings
-        id_feature = id_feature.cpu().numpy()
         if outputs[0] is not None:
+            # if outputs are not null
+            id_feature = outputs[0][:, 7:]  # [detect_num, 128]
+            id_feature = F.normalize(id_feature, dim=1)  # normalization of id embeddings
+            id_feature = id_feature.cpu().numpy()
             online_targets = tracker.update(outputs[0], [img_info['height'], img_info['width']], exp.test_size, id_feature)
             online_tlwhs = []
             online_ids = []
@@ -264,7 +265,11 @@ def imageflow_demo(predictor, vis_folder, current_time, args):
         if ret_val:
             outputs, img_info = predictor.inference(frame, timer)
             if outputs[0] is not None:
-                online_targets = tracker.update(outputs[0], [img_info['height'], img_info['width']], exp.test_size)
+                # if outputs are not null
+                id_feature = outputs[0][:, 7:]  # [detect_num, 128]
+                id_feature = F.normalize(id_feature, dim=1)  # normalization of id embeddings
+                id_feature = id_feature.cpu().numpy()
+                online_targets = tracker.update(outputs[0], [img_info['height'], img_info['width']], exp.test_size, id_feature)
                 online_tlwhs = []
                 online_ids = []
                 online_scores = []
