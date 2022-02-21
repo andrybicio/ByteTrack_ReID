@@ -50,7 +50,9 @@ class Exp(MyExp):
                 std=(0.229, 0.224, 0.225),
                 max_labels=600,
             ),
-        )
+        )       # dataset.annotations[0][0].shape: [obj_num, 6], tlbr(absolute value) + class_id + track_id
+        total_ids = dataset.nID         # TODO: total ids for reid classifier
+
 
         dataset = MosaicDetection(
             dataset,
@@ -90,7 +92,8 @@ class Exp(MyExp):
         dataloader_kwargs["batch_sampler"] = batch_sampler
         train_loader = DataLoader(self.dataset, **dataloader_kwargs)
 
-        return train_loader
+        settings = {'total_ids': total_ids}
+        return train_loader, settings
 
     def get_eval_loader(self, batch_size, is_distributed, testdev=False):
         from yolox.data import MOTDataset, ValTransform
