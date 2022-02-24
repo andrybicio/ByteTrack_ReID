@@ -14,7 +14,10 @@ from .basetrack import BaseTrack, TrackState
 extendedFilter = True
 
 class STrack(BaseTrack):
-    shared_kalman = KalmanFilter()
+    if extendedFilter:
+        shared_kalman = ExtendedKalmanFilter()
+    else:
+        shared_kalman = KalmanFilter()
     def __init__(self, tlwh, score, temp_feat, buffer_size=30):     # todo: ReID. add inputs of 'temp_feat', 'buffer_size'
 
         # wait activate
@@ -64,10 +67,7 @@ class STrack(BaseTrack):
 
     def activate(self, kalman_filter, frame_id):
         """Start a new tracklet"""
-        if extendedFilter:
-            self.kalman_filter = ExtendedKalmanFilter
-        else:
-            self.kalman_filter = kalman_filter
+        self.kalman_filter = kalman_filter
         self.track_id = self.next_id()
         self.mean, self.covariance = self.kalman_filter.initiate(self.tlwh_to_xyah(self._tlwh))
 
@@ -177,7 +177,10 @@ class BYTETracker(object):
         self.det_thresh = args.track_thresh + 0.1
         self.buffer_size = int(frame_rate / 30.0 * args.track_buffer)
         self.max_time_lost = self.buffer_size
-        self.kalman_filter = KalmanFilter()
+        if extendedFilter:
+            self.kalman_filter = ExtendedKalmanFilter()
+        else:
+            self.kalman_filter = KalmanFilter()
 
     def update(self, output_results, img_info, img_size, id_feature):       # TODO: ReID. add 'id_feature'
         """
