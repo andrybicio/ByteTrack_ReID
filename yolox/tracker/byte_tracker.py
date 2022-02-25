@@ -11,20 +11,23 @@ from .extended_kalman_filter import ExtendedKalmanFilter
 from yolox.tracker import matching
 from .basetrack import BaseTrack, TrackState
 
-extendedFilter = True
+def get_kalman(isEKF: bool):
+    if isEKF:
+        return ExtendedKalmanFilter()
+    else:
+        return KalmanFilter()
 
 class STrack(BaseTrack):
-    if extendedFilter:
-        shared_kalman = ExtendedKalmanFilter()
-    else:
-        shared_kalman = KalmanFilter()
-    def __init__(self, tlwh, score, temp_feat, buffer_size=30):     # todo: ReID. add inputs of 'temp_feat', 'buffer_size'
+    shared_kalman = get_kalman(False)
+
+    def __init__(self, tlwh, score, temp_feat, buffer_size=30, isEKF = False):     # todo: ReID. add inputs of 'temp_feat', 'buffer_size'
 
         # wait activate
         self._tlwh = np.asarray(tlwh, dtype=np.float)
         self.kalman_filter = None
         self.mean, self.covariance = None, None
         self.is_activated = False
+        self.shared_kalman = get_kalman(isEKF)
 
         self.score = score
         self.tracklet_len = 0
@@ -177,7 +180,7 @@ class BYTETracker(object):
         self.det_thresh = args.track_thresh + 0.1
         self.buffer_size = int(frame_rate / 30.0 * args.track_buffer)
         self.max_time_lost = self.buffer_size
-        if extendedFilter:
+        if args.EKF:
             self.kalman_filter = ExtendedKalmanFilter()
         else:
             self.kalman_filter = KalmanFilter()
@@ -224,7 +227,7 @@ class BYTETracker(object):
 
         if len(dets) > 0:
             '''Detections'''        # TODO: 'f, 30' for ReID
-            detections = [STrack(STrack.tlbr_to_tlwh(tlbr), s, f, 30) for  # detections to STracks, list [OT_0_(0-0), ...]
+            detections = [STrack(STrack.tlbr_to_tlwh(tlbr), s, f, 30, self.args.EKF) for  # detections to STracks, list [OT_0_(0-0), ...]
                           (tlbr, s, f) in zip(dets, scores_keep, id_feature_keep)]      # class STrack in yolox/tracker/byte_tracker.py
         else:
             detections = []
@@ -280,7 +283,7 @@ class BYTETracker(object):
         # association the untrack to the low score detections
         if len(dets_second) > 0:        # TODO: 'f, 30' for ReID
             '''Detections'''
-            detections_second = [STrack(STrack.tlbr_to_tlwh(tlbr), s, f, 30) for   # detections_second  --> STrack
+            detections_second = [STrack(STrack.tlbr_to_tlwh(tlbr), s, f, 30, self.args.EKF) for   # detections_second  --> STrack
                           (tlbr, s, f) in zip(dets_second, scores_second, id_feature_second)]
         else:
             detections_second = []

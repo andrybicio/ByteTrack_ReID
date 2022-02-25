@@ -23,6 +23,7 @@ def make_parser():
     parser = argparse.ArgumentParser("YOLOX Eval")
     parser.add_argument("-expn", "--experiment-name", type=str, default=None)
     parser.add_argument("-n", "--name", type=str, default=None, help="model name")
+    parser.add_argument("--EKF", type=bool, default=False, help="whether to use Extended Kalman Filter (2nd order)")
 
     # distributed
     parser.add_argument(
