@@ -78,7 +78,7 @@ class Exp(BaseExp):
                 nID = 2		# default value should not be 1
 
             if loss_settings is not None:
-                loss_id_weight = settings['loss_id_weight']
+                loss_id_weight = loss_settings['loss_id_weight']
             else:
                 print("----- Using deafult value for lossID weight (i.e. 0.5)!!!")
                 loss_id_weight = 0.5 # default value for the loss_id_weight
