@@ -59,7 +59,7 @@ class Exp(BaseExp):
         self.test_conf = 0.001
         self.nmsthre = 0.65
 
-    def get_model(self, settings=None):
+    def get_model(self, settings=None, loss_settings=None):
         from yolox.models import YOLOPAFPN, YOLOX, YOLOXHead
 
         def init_yolo(M):
@@ -70,13 +70,21 @@ class Exp(BaseExp):
 
         if getattr(self, "model", None) is None:
             in_channels = [256, 512, 1024]
+
             if settings is not None:
                 nID = settings['total_ids']
             else:
                 print("[warning] No nID got!!!")
                 nID = 2		# default value should not be 1
+
+            if loss_settings is not None:
+                loss_id_weight = settings['loss_id_weight']
+            else:
+                print("----- Using deafult value for lossID weight (i.e. 0.5)!!!")
+                loss_id_weight = 0.5 # default value for the loss_id_weight
+                
             backbone = YOLOPAFPN(self.depth, self.width, in_channels=in_channels)
-            head = YOLOXHead(self.num_classes, self.width, in_channels=in_channels, nID=nID)
+            head = YOLOXHead(self.num_classes, self.width, in_channels=in_channels, nID=nID, loss_id_weight=loss_id_weight)
             self.model = YOLOX(backbone, head)
 
         self.model.apply(init_yolo)

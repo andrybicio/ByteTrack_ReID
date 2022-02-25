@@ -25,6 +25,7 @@ class YOLOXHead(nn.Module):
         in_channels=[256, 512, 1024],
         act="silu",
         depthwise=False,
+        loss_id_weight = 0.5,
         nID=None,                   # TODO: reid
     ):
         """
@@ -56,6 +57,7 @@ class YOLOXHead(nn.Module):
         self.s_id = nn.Parameter(-1.05 * torch.ones(1))                 # TODO: For Uncertainty loss
         # self.s_det = nn.Parameter(3 * torch.ones(1))                # TODO: For Uncertainty loss
         # self.s_id = nn.Parameter(2 * torch.ones(1))                 # TODO: For Uncertainty loss
+        self.id_loss_weight = loss_id_weight
         self.settings = {}
 
         Conv = DWConv if depthwise else BaseConv
@@ -503,7 +505,7 @@ class YOLOXHead(nn.Module):
 
         # TODO: ReID. Uncertainty Loss
         # print("self.s_det:", self.s_det, "self.s_id:", self.s_id)           # for debug (0114)
-        det_loss = reg_weight * loss_iou + loss_obj + loss_cls + loss_l1 + 0.5 * loss_id
+        det_loss = reg_weight * loss_iou + loss_obj + loss_cls + loss_l1 + self.id_loss_weight * loss_id
         id_loss = loss_id
         loss = torch.exp(-self.s_det) * det_loss + torch.exp(-self.s_id) * id_loss + (self.s_det + self.s_id)
         loss *= 0.5

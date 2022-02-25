@@ -23,7 +23,6 @@ def make_parser():
     parser = argparse.ArgumentParser("YOLOX Eval")
     parser.add_argument("-expn", "--experiment-name", type=str, default=None)
     parser.add_argument("-n", "--name", type=str, default=None, help="model name")
-    parser.add_argument("--EKF", type=bool, default=False, help="whether to use Extended Kalman Filter (2nd order)")
 
     # distributed
     parser.add_argument(
@@ -108,6 +107,10 @@ def make_parser():
     parser.add_argument("--match_thresh", type=float, default=0.9, help="matching threshold for tracking")
     parser.add_argument("--min-box-area", type=float, default=100, help='filter out tiny boxes')
     parser.add_argument("--mot20", dest="mot20", default=False, action="store_true", help="test mot20.")
+
+    # additional params
+    parser.add_argument("--EKF", default=None, help="use Extended Kalman Filter (2nd order)")
+    parser.add_argument("--id_loss_weight", type=float, default=0.5, help="weight to set for for id loss")
     return parser
 
 
@@ -287,6 +290,11 @@ if __name__ == "__main__":
 
     num_gpu = torch.cuda.device_count() if args.devices is None else args.devices
     assert num_gpu <= torch.cuda.device_count()
+
+    if args.EKF is not None:
+        args.EKF = True # if "--EKF" arg is present, then use the Extended Kalman Filter
+    else:
+        args.EKF = False # else use the Kalman Linear one 
 
     launch(
         main,

@@ -69,7 +69,7 @@ class Trainer:
         # TODO: for reid
         self.settings = {}
         self.start_epoch = 0        # set default value
-        self.loss_settings = {}     # settings for loss, i.g. uncertainty parameter
+        self.loss_settings = { 'id_weight': args.id_loss_weight}     # settings for loss, i.g. uncertainty parameter
 
     def train(self):
         self.before_train()
@@ -80,13 +80,13 @@ class Trainer:
         finally:
             self.after_train()
 
-    def train_in_epoch(self):
+    def train_in_epoch(self): # for every epoch code
         for self.epoch in range(self.start_epoch, self.max_epoch):
             self.before_epoch()
             self.train_in_iter()
             self.after_epoch()
 
-    def train_in_iter(self):
+    def train_in_iter(self):  # for every batch code
         for self.iter in range(self.max_iter):
             self.before_iter()
             self.train_one_iter()
@@ -154,7 +154,7 @@ class Trainer:
 
         # model related init
         torch.cuda.set_device(self.local_rank)
-        model = self.exp.get_model(settings=self.settings)
+        model = self.exp.get_model(settings=self.settings, loss_settings=self.loss_settings)
         logger.info(
             "Model Summary: {}".format(get_model_info(model, self.exp.test_size))
         )

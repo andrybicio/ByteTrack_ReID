@@ -88,6 +88,9 @@ def make_parser():
     )
     parser.add_argument('--min_box_area', type=float, default=10, help='filter out tiny boxes')
     parser.add_argument("--mot20", dest="mot20", default=False, action="store_true", help="test mot20.")
+
+    # additional params
+    parser.add_argument("--EKF", default=False, help="use Extended Kalman Filter (2nd order)")
     return parser
 
 
@@ -331,6 +334,11 @@ def main(exp, args):
     if args.tsize is not None:
         exp.test_size = (args.tsize, args.tsize)
 
+    if args.EKF is not None:
+        args.EKF = True  # if "--EKF" arg is present, then use the Extended Kalman Filter
+    else:
+        args.EKF = False # else use the Kalman Linear one 
+
     model = exp.get_model().to(args.device)
     logger.info("Model Summary: {}".format(get_model_info(model, exp.test_size)))
     model.eval()
@@ -342,7 +350,6 @@ def main(exp, args):
             ckpt_file = args.ckpt
         logger.info("loading checkpoint")
         ckpt = torch.load(ckpt_file, map_location="cpu")
-        # load the model state dict
         # load the model state dict
         if "head.reid_classifier.weight" in ckpt["model"]:  # TODO: remove checkpoint of ReID classifier
             ckpt["model"].pop("head.reid_classifier.weight")
