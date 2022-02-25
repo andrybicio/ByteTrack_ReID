@@ -293,6 +293,7 @@ if __name__ == "__main__":
 
     if args.EKF is not None:
         args.EKF = True # if "--EKF" arg is present, then use the Extended Kalman Filter
+        print("Using Extended Kalman Filter")
     else:
         args.EKF = False # else use the Kalman Linear one 
 

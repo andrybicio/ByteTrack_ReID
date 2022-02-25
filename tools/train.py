@@ -115,8 +115,11 @@ if __name__ == "__main__":
 
     if args.EKF is not None:
         args.EKF = True # if "--EKF" arg is present, then use the Extended Kalman Filter
+        print("Using Extended Kalman Filter")
     else:
         args.EKF = False # else use the Kalman Linear one 
+
+    print("id-loss weight is:", args.id_loss_weight)
 
     num_gpu = torch.cuda.device_count() if args.devices is None else args.devices
     assert num_gpu <= torch.cuda.device_count()
