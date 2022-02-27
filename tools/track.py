@@ -291,7 +291,7 @@ if __name__ == "__main__":
     num_gpu = torch.cuda.device_count() if args.devices is None else args.devices
     assert num_gpu <= torch.cuda.device_count()
 
-    if args.EKF is not None:
+    if args.EKF:
         args.EKF = True # if "--EKF" arg is present, then use the Extended Kalman Filter
         print("Using Extended Kalman Filter")
     else:
