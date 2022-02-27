@@ -18,7 +18,7 @@ def get_kalman(isEKF: bool):
         return KalmanFilter()
 
 class STrack(BaseTrack):
-    #shared_kalman = get_kalman(False)
+    shared_kalman = get_kalman(True)
 
     def __init__(self, tlwh, score, temp_feat, buffer_size=30, isEKF = False):     # todo: ReID. add inputs of 'temp_feat', 'buffer_size'
 
