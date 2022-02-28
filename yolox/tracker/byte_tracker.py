@@ -75,8 +75,7 @@ class STrack(BaseTrack):
             for i, st in enumerate(stracks):
                 if st.state != TrackState.Tracked:
                     multi_mean[i][7] = 0
-            STrack.shared_kalman(isEKF)
-            multi_mean, multi_covariance = STrack.shared_kalman.multi_predict(multi_mean, multi_covariance, isEKF)
+            multi_mean, multi_covariance = STrack.shared_kalman(isEKF).multi_predict(multi_mean, multi_covariance, isEKF)
             for i, (mean, cov) in enumerate(zip(multi_mean, multi_covariance)):
                 stracks[i].mean = mean
                 stracks[i].covariance = cov
