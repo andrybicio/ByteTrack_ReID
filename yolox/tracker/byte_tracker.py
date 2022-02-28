@@ -18,7 +18,10 @@ def get_kalman(isEKF: bool):
         return KalmanFilter()
 
 class STrack(BaseTrack):
-    # shared_kalman = get_kalman(False)
+
+    @staticmethod
+    def shared_kalman(isEKF):
+        return get_kalman(isEKF)
 
     # shared_kalman = get_kalman(False)
     # @property
@@ -65,14 +68,15 @@ class STrack(BaseTrack):
         self.mean, self.covariance = self.kalman_filter.predict(mean_state, self.covariance)
 
     @staticmethod
-    def multi_predict(stracks):
+    def multi_predict(stracks, isEKF):
         if len(stracks) > 0:
             multi_mean = np.asarray([st.mean.copy() for st in stracks])
             multi_covariance = np.asarray([st.covariance for st in stracks])
             for i, st in enumerate(stracks):
                 if st.state != TrackState.Tracked:
                     multi_mean[i][7] = 0
-            multi_mean, multi_covariance = STrack.shared_kalman.multi_predict(multi_mean, multi_covariance)
+            STrack.shared_kalman(isEKF)
+            multi_mean, multi_covariance = STrack.shared_kalman.multi_predict(multi_mean, multi_covariance, isEKF)
             for i, (mean, cov) in enumerate(zip(multi_mean, multi_covariance)):
                 stracks[i].mean = mean
                 stracks[i].covariance = cov
@@ -255,7 +259,7 @@ class BYTETracker(object):
         ''' Step 2: First association, with embedding'''        # TODO: borrowed from FairMOT
         strack_pool = joint_stracks(tracked_stracks, self.lost_stracks)
         # Predict the current location with KF
-        STrack.multi_predict(strack_pool)
+        STrack.multi_predict(strack_pool, self.EKF)
         dists = matching.embedding_distance(strack_pool, detections)
         #dists = matching.fuse_iou(dists, strack_pool, detections)
         #dists = matching.iou_distance(strack_pool, detections)
