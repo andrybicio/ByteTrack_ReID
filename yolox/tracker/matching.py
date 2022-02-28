@@ -5,7 +5,7 @@ import lap
 from scipy.spatial.distance import cdist
 
 from cython_bbox import bbox_overlaps as bbox_ious
-from yolox.tracker import kalman_filter
+from yolox.tracker import kalman_filter ##import just the chiSquare values
 import time
 
 def merge_matches(m1, m2, shape):
@@ -129,10 +129,14 @@ def embedding_distance(tracks, detections, metric='cosine'):
     return cost_matrix
 
 
-def gate_cost_matrix(kf, cost_matrix, tracks, detections, only_position=False):
+def gate_cost_matrix(kf, cost_matrix, tracks, detections, only_position=False, extended_filter=False):
     if cost_matrix.size == 0:
         return cost_matrix
-    gating_dim = 2 if only_position else 4
+    gating_dim = 4
+    if (only_position == True) & (extended_filter == False):
+        gating_dim = 2
+    elif (extended_filter == True) & (only_position == False):
+        gating_dim = 6
     gating_threshold = kalman_filter.chi2inv95[gating_dim]
     measurements = np.asarray([det.to_xyah() for det in detections])
     for row, track in enumerate(tracks):
@@ -142,10 +146,14 @@ def gate_cost_matrix(kf, cost_matrix, tracks, detections, only_position=False):
     return cost_matrix
 
 
-def fuse_motion(kf, cost_matrix, tracks, detections, only_position=False, lambda_=0.98):
+def fuse_motion(kf, cost_matrix, tracks, detections, only_position=False, lambda_=0.98, extended_filter=False):
     if cost_matrix.size == 0:
         return cost_matrix
-    gating_dim = 2 if only_position else 4
+    gating_dim = 4
+    if (only_position == True) & (extended_filter == False):
+        gating_dim = 2
+    elif (extended_filter == True) & (only_position == False):
+        gating_dim = 6
     gating_threshold = kalman_filter.chi2inv95[gating_dim]
     measurements = np.asarray([det.to_xyah() for det in detections])
     for row, track in enumerate(tracks):

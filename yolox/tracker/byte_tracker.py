@@ -18,15 +18,16 @@ def get_kalman(isEKF: bool):
         return KalmanFilter()
 
 class STrack(BaseTrack):
-    _shared_kalman = get_kalman(False)
+    # shared_kalman = get_kalman(False)
 
-    @property
-    def shared_kalman(self):
-        return type(self)._shared_kalman
+    # shared_kalman = get_kalman(False)
+    # @property
+    # def shared_kalman(self):
+    #     return type(self)._shared_kalman
     
-    @shared_kalman.setter
-    def shared_kalman(self, val):
-        type(self)._shared_kalman = val
+    # @shared_kalman.setter
+    # def shared_kalman(self, val):
+    #     type(self)._shared_kalman = val
 
     def __init__(self, tlwh, score, temp_feat, buffer_size=30, isEKF = False):     # todo: ReID. add inputs of 'temp_feat', 'buffer_size'
 
@@ -177,6 +178,7 @@ class STrack(BaseTrack):
 
 
 class BYTETracker(object):
+
     def __init__(self, args, frame_rate=30):
         self.tracked_stracks = []  # type: list[STrack]
         self.lost_stracks = []  # type: list[STrack]
@@ -188,7 +190,8 @@ class BYTETracker(object):
         self.det_thresh = args.track_thresh + 0.1
         self.buffer_size = int(frame_rate / 30.0 * args.track_buffer)
         self.max_time_lost = self.buffer_size
-        if args.EKF:
+        self.EKF = True if args.EKF else False
+        if self.EKF:
             self.kalman_filter = ExtendedKalmanFilter()
         else:
             self.kalman_filter = KalmanFilter()
@@ -256,7 +259,7 @@ class BYTETracker(object):
         dists = matching.embedding_distance(strack_pool, detections)
         #dists = matching.fuse_iou(dists, strack_pool, detections)
         #dists = matching.iou_distance(strack_pool, detections)
-        dists = matching.fuse_motion(self.kalman_filter, dists, strack_pool, detections)    # kalman filter with maha distance doing gating
+        dists = matching.fuse_motion(self.kalman_filter, dists, strack_pool, detections, extended_filter = self.EKF)    # kalman filter with maha distance doing gating
         matches, u_track, u_detection = matching.linear_assignment(dists, thresh=self.args.match_thresh)
 
         for itracked, idet in matches:
