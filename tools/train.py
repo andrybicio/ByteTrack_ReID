@@ -113,8 +113,10 @@ if __name__ == "__main__":
     if not args.experiment_name:
         args.experiment_name = exp.exp_name
 
-    if args.EKF is None | False:
+    if args.EKF is None:
         args.EKF = False # Use the Kalman Linear one 
+        print("NOT using EKF")
+    elif args.EKF == False: 
         print("NOT using EKF")
     else:
         args.EKF = True # if "--EKF" arg is present, then use the Extended Kalman Filter
