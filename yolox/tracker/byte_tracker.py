@@ -20,7 +20,7 @@ def get_kalman(isEKF: bool):
 class STrack(BaseTrack):
 
     @staticmethod
-    def shared_kalman(_, isEKF):
+    def shared_kalman(isEKF):
         return get_kalman(isEKF)
 
     # shared_kalman = get_kalman(False)
@@ -75,7 +75,7 @@ class STrack(BaseTrack):
             for i, st in enumerate(stracks):
                 if st.state != TrackState.Tracked:
                     multi_mean[i][7] = 0
-            multi_mean, multi_covariance = STrack.shared_kalman('', isEKF).multi_predict(multi_mean, multi_covariance, isEKF)
+            multi_mean, multi_covariance = STrack.shared_kalman(isEKF).multi_predict(multi_mean, multi_covariance)
             for i, (mean, cov) in enumerate(zip(multi_mean, multi_covariance)):
                 stracks[i].mean = mean
                 stracks[i].covariance = cov
