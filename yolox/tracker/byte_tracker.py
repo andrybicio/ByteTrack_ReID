@@ -20,7 +20,7 @@ def get_kalman(isEKF: bool):
 class STrack(BaseTrack):
 
     @staticmethod
-    def shared_kalman(isEKF):
+    def shared_kalman(self, isEKF):
         return get_kalman(isEKF)
 
     # shared_kalman = get_kalman(False)
