@@ -18,7 +18,7 @@ def get_kalman(isEKF: bool):
         return KalmanFilter()
 
 class STrack(BaseTrack):
-    shared_kalman = get_kalman(True)
+    shared_kalman = get_kalman(False)
 
     def __init__(self, tlwh, score, temp_feat, buffer_size=30, isEKF = False):     # todo: ReID. add inputs of 'temp_feat', 'buffer_size'
 
@@ -37,6 +37,9 @@ class STrack(BaseTrack):
         self.update_features(temp_feat)
         self.features = deque([], maxlen=buffer_size)
         self.alpha = 0.9
+
+    def printWhichKalman(self):
+        print(type(self.shared_kalman))
 
     # TODO: ReID. for update embeddings during tracking
     def update_features(self, feat):
