@@ -80,7 +80,7 @@ def make_parser():
     )
 
     # additional params
-    parser.add_argument("--EKF", default=None, help="use Extended Kalman Filter (2nd order)")
+    parser.add_argument("--EKF", default=False, help="use Extended Kalman Filter (2nd order)")
     parser.add_argument("--id_loss_weight", type=float, default=0.5, help="weight to set for for id loss")
     return parser
 
@@ -114,7 +114,6 @@ if __name__ == "__main__":
         args.experiment_name = exp.exp_name
 
     if not args.EKF:
-        args.EKF = False # Use the Kalman Linear one 
         print("NOT using EKF")
     else:
         args.EKF = True # if "--EKF" arg is present, then use the Extended Kalman Filter
