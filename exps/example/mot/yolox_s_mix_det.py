@@ -49,7 +49,8 @@ class Exp(MyExp):
                 std=(0.229, 0.224, 0.225),
                 max_labels=500,
             ),
-        )
+        )       # dataset.annotations[0][0].shape: [obj_num, 6], tlbr(absolute value) + class_id + track_id
+        total_ids = dataset.nID         # TODO: total ids for reid classifier
 
         dataset = MosaicDetection(
             dataset,
@@ -104,9 +105,7 @@ class Exp(MyExp):
                 rgb_means=(0.485, 0.456, 0.406),
                 std=(0.229, 0.224, 0.225),
             ),
-        )       # dataset.annotations[0][0].shape: [obj_num, 6], tlbr(absolute value) + class_id + track_id
-        total_ids = dataset.nID         # TODO: total ids for reid classifier
-
+        )
 
         if is_distributed:
             batch_size = batch_size // dist.get_world_size()
