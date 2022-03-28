@@ -9,6 +9,7 @@ DATA_PATH = 'datasets/mot'
 OUT_PATH = os.path.join(DATA_PATH, 'annotations')
 SPLITS = ['train_half', 'val_half', 'train', 'test']  # --> split training data to train_half and val_half.
 HALF_VIDEO = True               # half video
+SPLIT_VIDEO_TO_THIRD = True     # 2/3 video for train and 1/3 for test
 CREATE_SPLITTED_ANN = True      # create splitted ann
 CREATE_SPLITTED_DET = True      # create splitted det
 
@@ -35,7 +36,8 @@ if __name__ == '__main__':
         for seq in sorted(seqs):
             if '.DS_Store' in seq:
                 continue
-            if 'mot' in DATA_PATH and (split != 'test' and not ('FRCNN' in seq)):
+            # if 'mot' in DATA_PATH and (split != 'test' and not ('FRCNN' in seq)): old version, this ain't actually lead to have the whole dataset,,,
+            if 'mot' in DATA_PATH and (split != 'test' and not ('FRCNN' in seq)):# and not ('DPM' in seq) and not ('SDP' in seq)):
                 continue
             video_cnt += 1  # video sequence number.
             out['videos'].append({'id': video_cnt, 'file_name': seq})
@@ -45,9 +47,9 @@ if __name__ == '__main__':
             images = os.listdir(img_path)
             num_images = len([image for image in images if 'jpg' in image])  # half and half
 
-            if HALF_VIDEO and ('half' in split):        # half
-                image_range = [0, num_images // 2] if 'train' in split else \
-                              [num_images // 2 + 1, num_images - 1]
+            if SPLIT_VIDEO_TO_THIRD and ('half' in split):        # half
+                image_range = [0, 2 * num_images // 3] if 'train' in split else \
+                              [2 * num_images // 3 + 1, num_images - 1]
             else:       # all
                 image_range = [0, num_images - 1]
 
