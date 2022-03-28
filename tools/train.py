@@ -80,7 +80,7 @@ def make_parser():
     )
 
     # additional params
-    parser.add_argument("--EKF", default=None, help="use Extended Kalman Filter (2nd order)")
+    parser.add_argument("--EKF", default=False, help="use Extended Kalman Filter (2nd order)")
     parser.add_argument("--id_loss_weight", type=float, default=0.5, help="weight to set for for id loss")
     return parser
 
@@ -113,12 +113,12 @@ if __name__ == "__main__":
     if not args.experiment_name:
         args.experiment_name = exp.exp_name
 
-    if args.EKF is not None:
+    if not args.EKF:
+        print("NOT using EKF")
+    else:
         args.EKF = True # if "--EKF" arg is present, then use the Extended Kalman Filter
         print("Using Extended Kalman Filter")
-    else:
-        args.EKF = False # else use the Kalman Linear one 
-
+        
     print("id-loss weight is:", args.id_loss_weight)
 
     num_gpu = torch.cuda.device_count() if args.devices is None else args.devices

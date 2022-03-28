@@ -498,15 +498,19 @@ class YOLOXHead(nn.Module):
             loss_l1 = 0.0
 
         reg_weight = 5.0
+        
 
+        ### ORIGINAL LOSS (i.e. ONLY DETECTION) 
         # loss = reg_weight * loss_iou + loss_obj + loss_cls + loss_l1      # TODO: original loss (only detection)
-        # loss = reg_weight * loss_iou + loss_obj + loss_cls + loss_l1 + 0.5 * loss_id        # TODO: ReID. set weight of loss_id to 0.5
+
+        ###  ReID ========== WITHOUT UNCERTAINTY 
+        # loss = reg_weight * loss_iou + loss_obj + loss_cls + loss_l1 + self.id_loss_weight * loss_id        # TODO: ReID. set weight of loss_id to 0.5
         # loss = loss_id          # TODO: only train id head
 
-        # TODO: ReID. Uncertainty Loss
+        # ReID ============= WITH UNCERTAINTY
         # print("self.s_det:", self.s_det, "self.s_id:", self.s_id)           # for debug (0114)
-        det_loss = reg_weight * loss_iou + loss_obj + loss_cls + loss_l1 + self.id_loss_weight * loss_id
-        id_loss = loss_id
+        det_loss = reg_weight * loss_iou + loss_obj + loss_cls + loss_l1
+        id_loss = self.id_loss_weight * loss_id                               #this is for output/plotting
         loss = torch.exp(-self.s_det) * det_loss + torch.exp(-self.s_id) * id_loss + (self.s_det + self.s_id)
         loss *= 0.5
 
